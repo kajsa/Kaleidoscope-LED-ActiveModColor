@@ -38,9 +38,6 @@ namespace KaleidoscopePlugins {
 
     void
     ActiveModColorEffect::loopHook (bool postClear) {
-      if (postClear)
-        return;
-
       for (byte r = 0; r < ROWS; r++) {
         for (byte c = 0; c < COLS; c++) {
           Key k = Layer.lookup (r, c);
@@ -54,8 +51,11 @@ namespace KaleidoscopePlugins {
           if (k.raw < Key_LCtrl.raw || k.raw > Key_RGUI.raw)
             continue;
 
-          if (Keyboard.isModifierActive (k.keyCode))
-            LEDControl.led_set_crgb_at (r, c, highlightColor);
+          if (Keyboard.isModifierActive (k.keyCode)) {
+            if (!postClear)
+              LEDControl.led_set_crgb_at (r, c, highlightColor);
+          } else if (postClear)
+            LEDControl.led_set_crgb_at (r, c, {0, 0, 0});
         }
       }
     }
